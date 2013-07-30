@@ -30,8 +30,10 @@
  <script>
 google.load("visualization", "1", {packages:["corechart"]});
 
-/* A global varible ... */
+/* A global variable ... */
+var initial_number_droplets = 22000;
 var current_cutoff = 0.0;
+var negative_cutoff = 0.0;
 
 function makeArray(count, content) {
    var result = [];
@@ -428,16 +430,32 @@ function drawSummaryData(kmeandata, div_to_update){
 	sd_positive = standard_deviation(kmeandata[1], mean_positive_droplets);
 	
 	cutoff = mean_positive_droplets-(3*sd_positive);
+	negative_cutoff = mean_negative_droplets+(3*sd_negative);
 	
+	var def_neg=0;
+	var def_pos=0;
+	for(var ac=0;ac<kmeandata[0].length;ac++){
+		if (kmeandata[0][ac]<negative_cutoff){
+			def_neg++;
+		}
+	}
+	for (var ac2=0;ac2<kmeandata[1].length;ac2++){
+			if (kmeandata[1][ac2]>cutoff){
+				def_pos++;
+			}
+	}
+	
+	var nc = negative_cutoff;
 	var data = new google.visualization.DataTable();
 	data.addColumn('string','Droplet Classification, defined by cluster.');
 	data.addColumn('string','Droplet Count');
 	data.addColumn('string','Mean Amplitude Value');
 	data.addColumn('string','SD in Amplitude');
-	data.addColumn('string','Cutoff Value, to define positive droplets.');
+	data.addColumn('string','Cutoff Value, to define  droplets.');
+	data.addColumn('string','number defined by cutoff');
 	data.addRows([
-		['Positive',kmeandata[1].length.toFixed(),mean_positive_droplets.toFixed(3),sd_positive.toFixed(3),">"+cutoff.toFixed(3)],
-		['Negative',kmeandata[0].length.toFixed(),mean_negative_droplets.toFixed(3),sd_negative.toFixed(3),'']
+		['Positive',kmeandata[1].length.toFixed(),mean_positive_droplets.toFixed(3),sd_positive.toFixed(3),">"+cutoff.toFixed(3), def_pos.toFixed()],
+		['Negative',kmeandata[0].length.toFixed(),mean_negative_droplets.toFixed(3),sd_negative.toFixed(3),'<'+nc.toFixed(3), def_neg.toFixed()]
 		]);
 	
 	var table = new google.visualization.Table(document.getElementById(div_to_update));
@@ -446,7 +464,8 @@ function drawSummaryData(kmeandata, div_to_update){
 }
 
 function concentration(pos_count,total_count){
-	var ratio = Math.abs(Math.log(1-pos_count/total_count)) *(total_count);
+	var ncount = total_count - pos_count;
+	var ratio = Math.abs(-Math.log(ncount/total_count)/0.91)*1000*20; 
 	//console.debug(ratio);
 	return ratio; 
 }
@@ -466,10 +485,6 @@ function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, 
 		var current_amplitudes = file_amplitudes[i];
 		
 		current_amplitudes = remove_na(current_amplitudes);
-		//var another = remove_na_two(current_amplitudes);
-		/* need to check that it is sorting numerically */
-		//current_amplitudes.sort();
-		//current_amplitudes.shift();
 		var neg_count=0;
 		//console.debug(current_amplitudes);
 	
@@ -477,7 +492,7 @@ function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, 
 		var pos_count = 0;
 		for (j=0;j<current_amplitudes.length;j++){
 			////console.debug("%d %d", current_amplitudes[j], thecutoff);
-			if (parseFloat(current_amplitudes[j])<parseFloat(thecutoff)){
+			if (parseFloat(current_amplitudes[j])<parseFloat(negative_cutoff)){
 				////console.debug("%f %d", parseFloat(current_amplitudes[j]), thecutoff);
 				neg_count++;
 				//break;
@@ -491,10 +506,12 @@ function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, 
 		
 		}
 		console.debug("%d %d",pos_count,neg_count);
-		var file_res = concentration(pos_count, current_amplitudes.length);
+		var a_total = neg_count + pos_count;
+		var file_res = concentration(pos_count, a_total);
 		running_total = running_total + file_res;
+		
 		//console.debug("Neg count %d pos count %d total %d concentration %f", neg_count, current_amplitudes.length-neg_count, current_amplitudes.length,file_res );
-		data.addRow([filenames[i],(pos_count).toFixed(), current_amplitudes.length.toFixed(),file_res.toFixed(3)]);
+		data.addRow([filenames[i],(pos_count).toFixed(),  a_total.toFixed(),file_res.toFixed(3)]);
 		
 	}
 	//console.debug("Final %f",running_total);
@@ -588,12 +605,7 @@ function handleFileSelectCount(evt){
 			reader.file_amplitude.push(amplitudes);
 			total_amplitude = total_amplitude.concat(amplitudes);
 			reader.total_amplitude = total_amplitude;
-			/*
-			var the_header = amplitudes.shift();
-			
-			reader.total_amplitude = total_amplitude;
-			reader.fnames.push(e.target.name);*/
-			////console.debug(contents);
+		
 	   });
 	
 	   reader.onloadend = (function(e){
@@ -608,6 +620,9 @@ function handleFileSelectCount(evt){
 				/*for (var count=0;count<reader.total_amplitude.length;count++){
 					if (parseFloat(reader.total_amplitude[count])
 				}*/
+				
+				
+				
 					
 				//console.debug("calling around the world..");
 				draw_separate_amplitude_histograms(reader.file_amplitude, current_cutoff);
