@@ -431,6 +431,7 @@ function drawSummaryData(kmeandata, div_to_update){
 
 function concentration(pos_count,total_count){
 	var ncount = total_count - pos_count;
+	// this is the key calculation whic returns the copy number per 20 micro litres.
 	var ratio = Math.abs(-Math.log(ncount/total_count)/0.91)*1000*20; 
 	//console.debug(ratio);
 	return ratio; 
@@ -440,10 +441,12 @@ function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, 
 	var running_res = [];
 	var running_total = 0.0;
 	var data = new google.visualization.DataTable();
-	data.addColumn('string','Replicate');
+	data.addColumn('string','Partition');
+	data.addColumn('string','Negative Droplets');
 	data.addColumn('string','Positive Droplets');
-	data.addColumn('string','Total Droplets');
+	data.addColumn('string','Total Valid Droplets');
 	data.addColumn('string', 'Poisson Estimate');
+	data.addColumn('string', 'Number of rain droplets');
 	
 	//console.debug("whati exped %d", file_amplitudes.length);
 	for (i=0;i<file_amplitudes.length;i++){
@@ -477,12 +480,13 @@ function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, 
 		running_total = running_total + file_res;
 		
 		//console.debug("Neg count %d pos count %d total %d concentration %f", neg_count, current_amplitudes.length-neg_count, current_amplitudes.length,file_res );
-		data.addRow([filenames[i],(pos_count).toFixed(),  a_total.toFixed(),file_res.toFixed(3)]);
+		data.addRow([filenames[i],(neg_count).toFixed(), (pos_count).toFixed(),  a_total.toFixed(),file_res.toFixed(3),(current_amplitudes.length-a_total).toFixed()]);
 		
 	}
 	//console.debug("Final %f",running_total);
 	var vtemp = parseFloat(thecutoff);
-	document.getElementById(div_result).innerHTML = "<h2>Using a cutoff Amplitude of &gt;" + vtemp.toFixed(3) + " the concentration is " + running_total.toFixed() + " copies  </h1>" 
+	var vtemp_lower = parseFloat(negative_cutoff);
+	document.getElementById(div_result).innerHTML = "<h3>Using a cutoff Amplitude of &gt;" + vtemp.toFixed(3) + " and &lt; " + vtemp_lower.toFixed() + " the concentration is " + running_total.toFixed() + " copies per 20 &#956;l  </h3>" 
 	
     var table = new google.visualization.Table(document.getElementById(div_to_use));
 	table.draw(data);
@@ -583,14 +587,6 @@ function handleFileSelectCount(evt){
 				positive_amps = [];
 				negative_amps = [];
 				reader.total_amplitude.sort(function(a,b){return a - b});
-				/*for (var count=0;count<reader.total_amplitude.length;count++){
-					if (parseFloat(reader.total_amplitude[count])
-				}*/
-				
-				
-				
-					
-				//console.debug("calling around the world..");
 				draw_separate_amplitude_histograms(reader.file_amplitude, current_cutoff);
 				call_concentration_with_cutoff(reader.file_amplitude,current_cutoff,"to_count","to_count_result",filenames);
 				}
@@ -654,18 +650,13 @@ function handleFileSelect(evt) {
 				var groups = kmeans(reader.total_amplitude, 2);
 				groups[0].sort(function(a,b){return a-b});
 				groups[1].sort(function(a,b){return a-b});
-				//console.debug("Low group");
-				//console.debug(groups[0]);
-				//console.debug("High group");
-				//console.debug(groups[1]);
 				var min_group2 = groups[1][0];
-				//console.debug("as expected");
-				//console.debug(min_group2);
 				var a_holder = [];
 				a_holder = a_holder.concat(groups[0]);
 				a_holder = a_holder.concat(groups[1]);
+				// create the histogram
 				var hist = histogram(a_holder, 50);
-				//console.debug(hist);
+				// draw the histogram
 		 		drawChart(hist,"every_chart_div", min_group2);
 				var cutoff = drawSummaryData(groups, "summary_positive_control");
 				current_cutoff = cutoff;

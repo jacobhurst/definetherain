@@ -42,16 +42,19 @@
 	</div>
 	<div id="cloud" class="span-10"><img src="img/rain.png"></div>
 	<br/>
-		<h3> Automatically analysing BioRad's Digital Droplet Output.</h3>
+		<h3> Automatically analysing BioRad's Digital Droplet PCR Output.</h3>
 		<br/>
 		<div id="tabs">
           <ul>
             <li><a href="#tabs-1">Raison d'&ecirc;tre</a></li>
             <li><a href="#tabs-2">Analyse Your Data</a></li>
             <li><a href="#tabs-3">How it works</a></li>
+            <li><a href="#tabs-4">Weather in Oxford</a></li>
           </ul>
           <div id="tabs-1">
-            <p>BioRad's Digital Droplet PCR machine has a problem with rain. This is not H<sub>2</sub>O falling from clouds but droplets that are not clearly defined as negative or positive. This web page provides a JavaScript implementation of a clustering algorithm for the Digital Droplet output. This code can run in your web browser and avoids the need to send data to remote servers. It automatically classifies the droplets into positive and negative responses allowing the use of Poisson statistics to accurately call low copy numbers. The source code and some test data is freely available from <a href="https://github.com/jacobhurst/definetherain">github</a> under the MIT license.  </p>
+            <p>Digital Droplet PCR works on the premise of dividing a sample into small compartments or droplets, each containing a single molecule of interest. The droplet are then examined to see if they contain the molecule. If so they can be defined as being a positive droplet or not and defined as a negative droplet. The concentration within the sample as a whole is then calculated using the proportion of positive and negative droplets and Poisson statistics.</p>
+            <img src="img/p1.png" />
+            <p>  BioRad's Digital Droplet PCR machine has a problem with rain.  This is not H<sub>2</sub>O falling from clouds but droplets that are not clearly defined as negative or positive. The Figures above indicate the problem.</p><p> This web page provides a JavaScript implementation of a clustering algorithm that uses BioRad's Digital Droplet output. This code can run in your web browser and avoids the need to send data to remote servers. It automatically classifies the droplets into positive and negative responses allowing to more accurately call low copy numbers. The source code and some test data is freely available from <a href="https://github.com/jacobhurst/definetherain">a software repository on Github</a> under the MIT license.  </p>
           </div>
           <div id="tabs-2">
 	    <p>Upload the positive control data to cluster and determine the cutoff to use.</p>
@@ -112,9 +115,25 @@
 		</div>
       </div>
       <div id="tabs-3">
-          The 
-    For this method to work a positive control is needed  
+          Both Quantisoft and definetherain use the following equation to calculate the concentration. Where N<sub>neg</sub> is the number of negative droplets, N is the total number of droplets and V<sub>droplet</sub> is the Volume per Droplet (0.91 &#956;l). 
+          <p> 
+          <img src="img/equation.png"/>
+        </p>
+
+        <p>
+How QuantiSoft defines a droplet as being either positive or negative is not explained in the user documentation. One of the objectives of definetherain is to clearly spell out how positive and negative droplets are defined.
+        </p>
+          	<p> Definetherain uses a positive control to define two clusters using the k-means algorithm. The cluster with lowest mean is the negative cluster and correspondingly the cluster with the higher mean is the positive cluster. Cutoffs from this control are then used to validate subsequent measurements. Valid droplets are defined as positive when the droplet has an amplitude that is > positive mean- 3 times the standard deviation of the positive cluster and negative when the amplitude is < negative cluster's mean+3 times the standard deviation of the negative cluster. Non valid droplets or <emp>rain</emp> are not included in the calculations.     
+          	</p>
+          	<p>
+          		The droplet analyser works by combining separate partitions of the same sample, likewise definetherain works by combining sample partitions to make a final copy call per 20 &#956;l. These partions can be exported to csv files which definetherain can work from. Example usage, is shown in this youtube screen cast.
+          	</p>
       </div>
+      <div id="tabs-4">
+          <p>This site has nothing to do with climatic conditions but is about optimising digital droplet PCR. However, you might be interested in what the weather is in Oxford.
+              </p>
+          <span style="display: block !important; width: 320px; text-align: center; font-family: sans-serif; font-size: 12px;"><a href="http://www.wunderground.com/cgi-bin/findweather/getForecast?query=zmw:00000.19.03658&bannertypeclick=wu_clean2day" title="Oxford, United Kingdom Weather Forecast" target="_blank"><img src="http://weathersticker.wunderground.com/weathersticker/cgi-bin/banner/ban/wxBanner?bannertype=wu_clean2day_metric_cond&airportcode=EGUB&ForcedCity=Oxford&ForcedState=United Kingdom&wmo=03658&language=EN" alt="Find more about Weather in Oxford, UK" width="300" /></a><br></span>
+          </div>
     </div>
 <div>
 
