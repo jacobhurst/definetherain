@@ -52,7 +52,7 @@
             <li><a href="#tabs-4">Weather in Oxford</a></li>
           </ul>
           <div id="tabs-1">
-            <p>Digital Droplet PCR works on the premise of dividing a sample into small compartments or droplets, each containing a single molecule of interest. The droplet are then examined to see if they contain the molecule. If so they can be defined as being a positive droplet or not and defined as a negative droplet. The concentration within the sample as a whole is then calculated using the proportion of positive and negative droplets and Poisson statistics.</p>
+            <p>Digital Droplet PCR works on the premise of dividing a sample into small compartments or droplets, each containing a single molecule of interest. The droplet's flouresence is examined. If the flouresence reaches a cutoff the droplet is then defined as positive, if not it is defined as negative. The concentration within the sample as a whole is then calculated using the proportion of positive and negative droplets and Poisson statistics.</p>
             <img src="img/dropletfrag.jpg" width="500"/>
             <p>  BioRad's Digital Droplet PCR machine has a problem with rain.  This is not H<sub>2</sub>O falling from clouds but droplets that are not clearly defined as negative or positive. The Figures above indicate the problem.</p><p> This web page provides a JavaScript implementation of a clustering algorithm that uses BioRad's Digital Droplet output. This code can run in your web browser and avoids the need to send data to remote servers. It automatically classifies the droplets into positive and negative responses allowing to more accurately call low copy numbers. The source code and some test data is freely available from <a href="https://github.com/jacobhurst/definetherain">a software repository on Github</a> under the MIT license.  </p>
           </div>
@@ -126,7 +126,7 @@ How QuantiSoft defines a droplet as being either positive or negative is not exp
           	<p> Definetherain uses a positive control to define two clusters using the k-means algorithm. The cluster with lowest mean is the negative cluster and correspondingly the cluster with the higher mean is the positive cluster. Cutoffs from this control are then used to validate subsequent measurements. Valid droplets are defined as positive when the droplet has an amplitude that is > positive mean- 3 times the standard deviation of the positive cluster and negative when the amplitude is < negative cluster's mean+3 times the standard deviation of the negative cluster. Non valid droplets or <emp>rain</emp> are not included in the calculations.     
           	</p>
           	<p>
-          		The droplet analyser works by combining separate partitions of the same sample, likewise definetherain works by combining sample partitions to make a final copy call per 20 &#956;l. These partions can be exported to csv files which definetherain can work from. Example usage, is shown in this youtube screen cast.
+          		Working from the droplet amplitude files that are exported from the droplet analyser. The sample partitions are combined to make a final copy call per 20 &#956;l. Example usage, is shown in this <a href="http://www.youtube.com/watch?v=Zzl1UMrXhdg&feature=youtu.be">youtube screen cast</a>.
           	</p>
       </div>
       <div id="tabs-4">
