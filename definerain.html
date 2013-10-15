@@ -57,7 +57,7 @@
             <p>  BioRad's Digital Droplet PCR machine has a problem with rain.  This is not H<sub>2</sub>O falling from clouds but droplets that are not clearly defined as negative or positive. The Figures above indicate the problem.</p><p> This web page provides a JavaScript implementation of a clustering algorithm that uses BioRad's Digital Droplet output. This code can run in your web browser and avoids the need to send data to remote servers. It automatically classifies the droplets into positive and negative responses allowing to more accurately call low copy numbers. The source code and some test data is freely available from <a href="https://github.com/jacobhurst/definetherain">a software repository on Github</a> under the MIT license.  </p>
           </div>
           <div id="tabs-2">
-	    <p>Upload the positive control data to cluster and determine the cutoff to use.</p>
+	    <p>Upload the positive control data to cluster and determine the cutoff to use, using the button below. After having calculated the cutoff values with a postive control the page will invite you to load a test sample.</p>
 		<form enctype="multipart/form-data" action="javascript://console.debug('success!');" method="post">
 			<input type="file" id="files" name="files[]" multiple />
 			<output id="list"></output>
@@ -66,6 +66,24 @@
 		    <output id="progress"></output>		
 			
 		</form>
+		<h2>Test Data</h2>
+		<p>  To see how the software works test positive Control Data for an albumin assay is available via the links below. 
+	    Here is a <a href="http://www.youtube.com/watch?v=Zzl1UMrXhdg&feature=youtu.be">short screencast</a> that shows the operation of the software.</p>
+		<h3>Positive Control test data, with high copy number.</h3>
+		<p>Place all four partitions in a common directory. Load the test data with the button above.</p>
+		<a href="https://s3.amazonaws.com/definetherain.org.uk/data/positive_control/Big+test+6.12.12_E08_Amplitude.csv">Partition 1</a>
+		<a href="https://s3.amazonaws.com/definetherain.org.uk/data/positive_control/Big+test+6.12.12_F08_Amplitude.csv">Partition 2</a>
+		<a href="https://s3.amazonaws.com/definetherain.org.uk/data/positive_control/Big+test+6.12.12_G08_Amplitude.csv">Partition 3</a>
+		<a href="https://s3.amazonaws.com/definetherain.org.uk/data/positive_control/Big+test+6.12.12_H08_Amplitude.csv">Partition 4</a>
+		<h3> Lower copy number test sample.</h3> 
+		<p>Download the data and place in a common directory. Evaluate with the positive control data above.</p>
+		<p>
+		 <a href="https://s3.amazonaws.com/definetherain.org.uk/data/test_data/Big+test+6.12.12_E09_Amplitude.csv">Partition 1</a>
+		 <a href="https://s3.amazonaws.com/definetherain.org.uk/data/test_data/Big+test+6.12.12_F09_Amplitude.csv">Partition 2</a>
+		 <a href="https://s3.amazonaws.com/definetherain.org.uk/data/test_data/Big+test+6.12.12_G09_Amplitude.csv">Partition 3</a> 
+		 <a href="https://s3.amazonaws.com/definetherain.org.uk/data/test_data/Big+test+6.12.12_H09_Amplitude.csv">Partition 4</a>
+		 </p>
+
 		<span></span>
 		
 		<div id="every_chart_div" style="width: 900px; height: 500px;"></div>
