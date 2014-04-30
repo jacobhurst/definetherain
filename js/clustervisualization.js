@@ -1,5 +1,7 @@
 google.load("visualization", "1", {packages:["corechart"]});
 
+
+
 /* A global variable ... */
 var initial_number_droplets = 22000;
 var current_cutoff = 0.0;
@@ -68,7 +70,6 @@ function standard_deviation(arrayToProcess, the_mean){
 	////console.debug(running_total);
 	return running_total;		
 }
-
 
 
 function kmeans( arrayToProcess, Clusters )
@@ -437,7 +438,7 @@ function concentration(pos_count,total_count){
 	return ratio; 
 }
 
-function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, div_result, filenames){
+function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, div_result, filenames, file_positions){
 	var running_res = [];
 	var running_total = 0.0;
 	var data = new google.visualization.DataTable();
@@ -480,6 +481,7 @@ function call_concentration_with_cutoff(file_amplitudes, thecutoff, div_to_use, 
 		running_total = running_total + file_res;
 		
 		//console.debug("Neg count %d pos count %d total %d concentration %f", neg_count, current_amplitudes.length-neg_count, current_amplitudes.length,file_res );
+		
 		data.addRow([filenames[i],(neg_count).toFixed(), (pos_count).toFixed(),  a_total.toFixed(),file_res.toFixed(3),(current_amplitudes.length-a_total).toFixed()]);
 		
 	}
@@ -553,49 +555,60 @@ function draw_separate_amplitude_histograms(file_amplitudes, cutoff){
 
 function handleFileSelectCount(evt){
 	//console.debug("as you requested geezer!");
+	// FileReaderJS.setupInput(document.getElementById('file-input'),);
 	var files = evt.target.ftocount;
 	var files2 = evt.target.files;
 	//console.debug(files2);
 	
 	var call_counter = 0;
+	//var call_counter_2 = 0;
 	var filenames = [];
 	var total_amplitude = [];
+	//var holder = [];
+
 	for (var i =0,f;f=files2[i];i++){
 		var reader = new FileReader();
 		reader.file_amplitude = [];
-		reader.total_amplitude = []
+		reader.total_amplitude = [];
+		reader.file_pos = [];
+		reader.fname = [];
+		//reader.fname.push(f.name);
 		// deal with the file information....
 		reader.onload = (function(e){
-			//console.debug("called_success?")
 			var contents = e.target.result;
-			////console.debug(contents);
 			var csv_d = CSVToArray(contents);
 	    	var amplitudes = csv_d.map(function(value,index){ return parseFloat(value[0]); });
-	        
+	        //holder.push(call_counter_2);
+	        //console.debug(holder);
 			reader.file_amplitude.push(amplitudes);
-			total_amplitude = total_amplitude.concat(amplitudes);
-			reader.total_amplitude = total_amplitude;
-		
+			//call_counter_2++;
 	   });
 	
 	   reader.onloadend = (function(e){
 			 call_counter++;
-			    //var groups = kmeans(reader.total_amplitude);
-			    /*** the last file has been loaded... ***/
-				if (call_counter==(files2.length)){
-				
-				positive_amps = [];
-				negative_amps = [];
-				reader.total_amplitude.sort(function(a,b){return a - b});
+			 //reader.fname.push(f.name);
+			 //console.debug(reader.fname);
+			/*** the last file has been loaded... ***/
+			if (call_counter==(files2.length)){
+				//reader.total_amplitude.sort(function(a,b){return a - b});
 				draw_separate_amplitude_histograms(reader.file_amplitude, current_cutoff);
+				//console.debug(reader.file_pos);
 				call_concentration_with_cutoff(reader.file_amplitude,current_cutoff,"to_count","to_count_result",filenames);
 				}
 		});
-	   	//console.debug(reader);
+	  //console.debug(reader);
 	  /* pass the file contents into the FileReader class */
 	  reader.readAsText(f);
 	  filenames.push(f.name);
-		//console.debug(f.name);
+	  /*** This to carry out the fix for Nasha 30 April 2014 ***/
+	  /*** The main problem is due to the reading being Asynchronous by default and no standard way to
+	   set the reading to synchronous **/
+	  var startNow = new Date();
+	  var pauseFor = 1000;
+	  while (new Date()-startNow < pauseFor)
+	  	;
+	 // console.debug("here I am saying %d", holder.length);
+	  
 	}
 }
 
@@ -624,13 +637,11 @@ function handleFileSelect(evt) {
 		reader.fnames = [];
 		reader.total_amplitude = [];
 		reader.file_amplitude = [];
-		
-	
-		
+
 		// deal with the file information....
 		reader.onload = (function(e){
 			var contents = e.target.result;
-			////console.debug(contents);
+			//console.debug(e);
 			var csv_d = CSVToArray(contents);
 	    	amplitudes = csv_d.map(function(value,index){ return value[0]; });
 			reader.file_amplitude.push(amplitudes);
